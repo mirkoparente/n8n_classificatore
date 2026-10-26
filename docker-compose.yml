@@ -2,6 +2,8 @@ services:
   postgres:
     image: postgres:16
     restart: unless-stopped
+    ports:
+      - "5432:5432"   # per collegarsi al database dal PC (es. Streamlit)
     environment:
       POSTGRES_USER: n8n
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -29,6 +31,8 @@ services:
       DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
       GENERIC_TIMEZONE: Europe/Rome
       N8N_SECURE_COOKIE: "false"   # solo per prova in locale su http
+      WEBHOOK_URL: https://lenovo.tail1439dd.ts.net/
+      N8N_PROXY_HOPS: 1
     extra_hosts:
       - "host.docker.internal:host-gateway"   # per raggiungere Ollama sul PC (serve su Linux, innocuo su Windows)
     depends_on:

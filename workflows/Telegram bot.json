@@ -1,0 +1,201 @@
+{
+  "name": "Telegram bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3e160fbb-83f6-472e-a950-3f82e506144e",
+      "name": "Telegram Trigger",
+      "webhookId": "7e2763b8-0f72-4377-94ed-b4a5a730926d",
+      "credentials": {
+        "telegramApi": {
+          "id": "3kMqa1Fa1FmburAn",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "aa98046d-30a5-45b3-be17-93bb3f3d082e",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "050b0c02-d69d-4495-aa69-fceb67605f43",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "/",
+              "operator": {
+                "type": "string",
+                "operation": "notStartsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "efd861ef-3547-45c2-8f71-f33a365c3eb0",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://localhost:5678/webhook/chiedi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "messaggio",
+              "value": "={{ $('Telegram Trigger').item.json.message.text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        448,
+        -96
+      ],
+      "id": "8b56fc12-2c54-48b3-8be8-2ee7aa097679",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.risposta_suggerita }}\n\n📂 <b>Categoria:</b> {{ $json.categoria.replace('_', ' ') }}\n⚡ <b>Urgenza:</b> {{ $json.urgenza }}\n🎫 <b>Ticket</b> #{{ $json.id }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        -96
+      ],
+      "id": "c25bfb4c-640f-4c64-b5c7-70b2f2c91ee2",
+      "name": "Send a text message",
+      "webhookId": "cb2cda97-ae11-4515-8aed-d1f3ba1a7f86",
+      "credentials": {
+        "telegramApi": {
+          "id": "3kMqa1Fa1FmburAn",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Ciao! 👋 Sono l'assistente ospiti. Scrivimi a parole la tua richiesta (prenotazione, check-in, guasto in camera, pagamenti, eventi…) e la inoltro subito al team giusto.  Hi! 👋 I'm the guest assistant. Just type your request (booking, check-in, room issue, payments, events…) and I'll forward it to the right team.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        96
+      ],
+      "id": "dabb8dac-101c-4303-9eaf-ab1424e4e0f0",
+      "name": "Send a text message1",
+      "webhookId": "71f1a7f2-6941-4deb-93ac-0e15201b484c",
+      "credentials": {
+        "telegramApi": {
+          "id": "3kMqa1Fa1FmburAn",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "01cd77f3-ab5e-4e65-85d9-01d788f4f368",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "6122945419a79d8b8c68e35c91d46f3857c20ad3f0157344edad78d2138d6929"
+  },
+  "nodeGroups": [],
+  "id": "JrYDqVQQPCEECExq",
+  "tags": []
+}
